@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fear & Greed Index</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+</head>
+<body>
+    <h1>Fear & Greed Index</h1>
+    <canvas id="zScoreChart" width="400" height="200"></canvas>
+    <canvas id="fgIndexChart" width="400" height="200"></canvas>
+
+    <script>
+        fetch('/data')
+            .then(response => response.json())
+            .then(data => {
+                const zScoreCtx = document.getElementById('zScoreChart').getContext('2d');
+                const fgIndexCtx = document.getElementById('fgIndexChart').getContext('2d');
+
+                new Chart(zScoreCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.dates,
+                        datasets: [{
+                            label: 'Z Score Grade',
+                            data: data.z_score_grade,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day'
+                                }
+                            }
+                        }
+                    }
+                });
+
+                new Chart(fgIndexCtx, {
+                    type: 'line',
+                    data: {
+                        labels: data.dates,
+                        datasets: [{
+                            label: 'Fear & Greed Index',
+                            data: data.fear_greed_index,
+                            borderColor: 'rgba(255, 99, 132, 1)',
+                            borderWidth: 1,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day'
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
