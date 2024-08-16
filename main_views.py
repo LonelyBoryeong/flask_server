@@ -1,5 +1,6 @@
 from flask import Blueprint, Flask, jsonify, render_template
 import factory_model
+import datetime
 bp = Blueprint('main', __name__ , url_prefix= '/')
 
 
@@ -28,7 +29,7 @@ def news_crawler():
 def news_crawler_tmp():
     # 크롤링 실행
     # 현재 날짜를 가져옴 (시간 제외)
-    today = factory_model.datetime.date.today()
+    today = datetime.date.today()
 
     #start_date = datetime(2024, 6, 1)
     #end_date = datetime(2024, 6, 30)
@@ -38,8 +39,10 @@ def news_crawler_tmp():
 
     crawler = factory_model.NewsCrawler(start_date, end_date, page_num)
     df_json = crawler.run_tmp()
+    print(df_json)
+    re = jsonify(df_json)
     # 애플리케이션 컨텍스트 설정
-    return df_json
+    return re
 
 @bp.route('/data')
 def data():
