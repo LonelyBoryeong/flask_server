@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
+import model2 
 
 app = Flask(__name__)
 
@@ -18,27 +19,10 @@ db = SQLAlchemy(app)
 # Flask-Migrate 객체 생성
 migrate = Migrate(app, db)
 
-
-# 모델 정의
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-#질문 답변 시스템 db
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    subject = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text(), nullable=False)
-    create_date = db.Column(db.DateTime(), nullable=False)
-
-
 #뉴스 기사용 db
 class News_FG(db.Model):
     #date, title, content, url, keyword
+    __tablename__ = 'News_FG'
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime(), nullable=True)
     title = db.Column(db.String(200), nullable=True)
@@ -54,6 +38,16 @@ class News_senti(db.Model):
     z_score_grade = db.Column(db.Integer, nullable=True)
     category = db.Column(db.Integer, nullable=True)
 
+class Naver_news(db.Model):
+    __tablename__ = 'Naver_news'
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.DateTime, nullable=True)
+    title = db.Column(db.text, nullable=True)
+    content = db.Column(db.text, nullable=True)
+    url = db.Column(db.text, nullable=True)
+    keyword = db.Column(db.JSON, nullable=True)
+    
+
 '''
 @app.route("/", methods=['GET'])
 def hello():
@@ -63,6 +57,23 @@ def hello():
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/news_crawler')
+def news_crawler():
+    # 크롤링 실행
+    # 현재 날짜를 가져옴 (시간 제외)
+    today = model2.datetime.date.today()
+
+    #start_date = datetime(2024, 6, 1)
+    #end_date = datetime(2024, 6, 30)
+    start_date = today
+    end_date = today
+    page_num = 10  # 각 날짜마다 크롤링할 페이지 수
+
+    crawler = model2.NewsCrawler(start_date, end_date, page_num)
+    df_json = crawler.run_tmp()
+    # 애플리케이션 컨텍스트 설정
+    return df_json
 
 @app.route('/data')
 def data():
@@ -83,8 +94,6 @@ def data():
 
     return jsonify(data)
     
-    
-
 
 # 데이터베이스 생성
 with app.app_context():
@@ -93,4 +102,3 @@ with app.app_context():
 # Flask 앱 실행
 if __name__ == '__main__':
     app.run(debug=True)
-    
