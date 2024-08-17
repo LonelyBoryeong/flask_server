@@ -19,6 +19,7 @@ class Naver_news(db.Model):
     content = db.Column(db.Text, nullable=True)
     url = db.Column(db.Text, nullable=True)
     keyword = db.Column(db.JSON, nullable=True)
+    sentiment = db.Column(db.String(10),nullable=True)
 #뉴스 기사용 db
 class News_FG(db.Model):
     #date, title, content, url, keyword
