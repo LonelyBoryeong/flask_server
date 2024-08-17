@@ -62,6 +62,23 @@ economic_keywords = [
     'GDP', '무역수지', '경상수지', '소비자물가지수', '생산자물가지수', '실업률', '경제성장률', '기준금리',
 ]
 
+
+def reset_naver_news_table():
+    """
+    Naver_news 테이블을 리셋하는 함수
+    기존 테이블을 삭제한 후 동일한 구조로 새로 생성합니다.
+    """
+    try:
+        # 테이블 삭제
+        Naver_news.__table__.drop(db.engine)
+
+        # 테이블 생성
+        db.create_all()
+
+        print("Naver_news 테이블이 성공적으로 리셋되었습니다.") 
+    except Exception as e:
+        print(f"테이블 리셋 중 오류 발생: {e}") 
+
 def is_economic_news(title, content):
     title = title or ""
     content = content or ""
@@ -166,7 +183,7 @@ class NewsCrawler:
         # 예시 JSON 데이터
         for item in self.data:
             # date 문자열을 datetime 객체로 변환
-            date_obj = datetime.strptime(item['date'], '%Y-%m-%d')
+            date_obj = datetime.strptime(item['date'], '%Y%m%d')
             
             # Naver_news 객체 생성
             news_item = Naver_news(
@@ -181,6 +198,7 @@ class NewsCrawler:
 
         # 모든 변경 사항을 커밋
         db.session.commit()
+        return self.data[0]
     
     def run_tmp(self):
         

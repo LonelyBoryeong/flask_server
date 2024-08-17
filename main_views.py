@@ -1,4 +1,4 @@
-from flask import Blueprint, Flask, jsonify, render_template
+from flask import Blueprint, Flask, jsonify, render_template, redirect, url_for
 import factory_model
 import datetime
 bp = Blueprint('main', __name__ , url_prefix= '/')
@@ -8,17 +8,29 @@ bp = Blueprint('main', __name__ , url_prefix= '/')
 def index():
     return render_template('index.html')
 
+@bp.route('/reset')
+def reset_naver_news_table():
+    """
+    Naver_news 테이블을 리셋하는 함수
+    기존 테이블을 삭제한 후 동일한 구조로 새로 생성합니다.
+    """
+    
+    factory_model.reset_naver_news_table()
+    return redirect(url_for('main.index'))
+
+
+
 @bp.route('/news_crawler')
 def news_crawler():
     # 크롤링 실행
     # 현재 날짜를 가져옴 (시간 제외)
-    today = factory_model.datetime.date.today()
+    today = datetime.date.today()
 
     #start_date = datetime(2024, 6, 1)
     #end_date = datetime(2024, 6, 30)
     start_date = today
     end_date = today
-    page_num = 10  # 각 날짜마다 크롤링할 페이지 수
+    page_num = 1  # 각 날짜마다 크롤링할 페이지 수
 
     crawler = factory_model.NewsCrawler(start_date, end_date, page_num)
     df_json = crawler.run()
