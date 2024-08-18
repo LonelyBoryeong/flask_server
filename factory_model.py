@@ -39,9 +39,6 @@ class News_senti(db.Model):
     z_score_grade = db.Column(db.Integer, nullable=True)
     category = db.Column(db.Integer, nullable=True)
 
-
-
-
 # 경제 관련 키워드 리스트
 economic_keywords = [
     # 일반 경제 용어
@@ -62,8 +59,6 @@ economic_keywords = [
     # 경제 지표
     'GDP', '무역수지', '경상수지', '소비자물가지수', '생산자물가지수', '실업률', '경제성장률', '기준금리',
 ]
-
-
 def reset_naver_news_table():
     """
     Naver_news 테이블을 리셋하는 함수
