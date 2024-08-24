@@ -8,6 +8,9 @@ import nest_asyncio
 from tqdm import tqdm
 from extensions import db
 from datetime import datetime
+import ssl,certifi
+
+
 
 # nest_asyncio를 적용하여 중첩된 이벤트 루프 허용
 nest_asyncio.apply()
@@ -95,16 +98,18 @@ class NewsCrawler:
         urls = []
         for page in range(1, self.page_num + 1):
             url = f'https://news.naver.com/main/list.nhn?mode=LSD&mid=sec&sid1=101&date={date}&page={page}'
-            async with session.get(url, headers=self.headers) as response:
-                html = await response.text()
-                soup = BeautifulSoup(html, 'html.parser')
+            #async with session.get(url, headers=self.headers) as response:
+            async with aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False)) as session:
+                async with session.get(url, headers=self.headers) as response:
+                    html = await response.text()
+                    soup = BeautifulSoup(html, 'html.parser')
 
-                news_list = soup.select('.newsflash_body .type06_headline li dl')
-                news_list.extend(soup.select('.newsflash_body .type06 li dl'))
+                    news_list = soup.select('.newsflash_body .type06_headline li dl')
+                    news_list.extend(soup.select('.newsflash_body .type06 li dl'))
 
-                for news in news_list:
-                    news_url = news.a['href']
-                    urls.append(news_url)
+                    for news in news_list:
+                        news_url = news.a['href']
+                        urls.append(news_url)
 
         return urls
 
@@ -120,7 +125,8 @@ class NewsCrawler:
             pbar.close()
 
     async def get_news_content(self, session, url):
-        async with session.get(url, headers=self.headers) as response:
+        ssl_context = ssl.create_default_context(cafile=certifi.where())
+        async with session.get(url, headers=self.headers, ssl=False) as response:
             html = await response.text()
             soup = BeautifulSoup(html, 'html.parser')
 

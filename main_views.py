@@ -29,7 +29,7 @@ def reset_naver_news_table():
     """
     
     factory_model.reset_naver_news_table()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.list_news'))
 
 
 
